@@ -1,0 +1,567 @@
+---
+alwaysApply: true
+---
+
+# PDF 페이지 분할 서비스 - 프로젝트 아키텍처
+
+## 프로젝트 개요
+
+이 프로젝트는 PDF 파일을 업로드하면 각 페이지를 독립적인 PDF 파일로 분할하여 다운로드할 수 있는 클라이언트 사이드 웹 애플리케이션입니다. 모든 처리는 브라우저에서 수행되며 서버에 파일이 저장되지 않습니다.
+
+### 주요 기능
+- **PDF 분할**: 각 페이지를 독립 PDF로 분할
+- **다운로드 옵션**: 
+  - 개별 페이지 다운로드
+  - 전체 페이지 ZIP 다운로드
+  - 선택한 페이지 ZIP 다운로드
+- **사용자 경험**: 
+  - 부드러운 애니메이션
+  - 반응형 디자인
+  - 명확한 에러 처리
+  - 접근성 지원
+
+## 기술 스택
+
+### 핵심 기술
+- **Framework**: Next.js 16 (App Router)
+- **Language**: TypeScript
+- **UI Library**: React 19
+- **UI Components**: Shadcn/ui (Radix UI 기반)
+- **Styling**: Tailwind CSS 3.4
+- **PDF 처리**: pdf-lib 1.17.1
+- **애니메이션**: framer-motion 12.23.26
+- **ZIP 생성**: jszip 3.10.1
+
+### 개발 도구
+- **Package Manager**: npm
+- **Linting**: ESLint (Next.js config)
+- **Build Tool**: Next.js Turbopack
+
+## 프로젝트 구조
+
+```
+PDF/
+├── app/                      # Next.js App Router 디렉토리
+│   ├── layout.tsx           # 루트 레이아웃 (ErrorBoundary 포함)
+│   ├── page.tsx             # 메인 페이지 (상태 관리 및 UI)
+│   └── globals.css           # 전역 스타일 (Tailwind CSS)
+├── components/              # React 컴포넌트
+│   ├── FileUpload.tsx       # 파일 업로드 컴포넌트 (드래그앤드롭)
+│   ├── LoadingSpinner.tsx   # 로딩 스피너 컴포넌트 (진행률 표시)
+│   ├── ErrorMessage.tsx     # 에러 메시지 컴포넌트
+│   ├── ErrorBoundary.tsx    # React Error Boundary
+│   ├── ClientErrorHandler.tsx # 전역 에러 핸들러 설정
+│   └── ui/                  # Shadcn/ui 컴포넌트
+│       ├── button.tsx
+│       ├── card.tsx
+│       └── checkbox.tsx
+├── lib/                     # 유틸리티 및 비즈니스 로직
+│   ├── pdfSplitter.ts       # PDF 분할 핵심 로직 (진행률 콜백 지원)
+│   ├── zipDownloader.ts     # ZIP 파일 생성 및 다운로드
+│   ├── errorTypes.ts        # 에러 타입 정의 및 메시지
+│   ├── errorHandler.ts      # 전역 에러 핸들러 로직
+│   └── utils.ts             # 공통 유틸리티 함수 (cn 등)
+├── components.json          # Shadcn/ui 설정
+├── tailwind.config.ts       # Tailwind CSS 설정
+├── tsconfig.json            # TypeScript 설정
+├── postcss.config.js        # PostCSS 설정
+└── package.json             # 프로젝트 의존성
+```
+
+## 아키텍처 패턴
+
+### 1. 클라이언트 사이드 처리
+- 모든 PDF 처리는 브라우저에서 수행
+- 서버 업로드 없음 (프라이버시 보호)
+- File API와 pdf-lib를 사용한 메모리 내 처리
+
+### 2. 컴포넌트 기반 아키텍처
+- **Presentational Components**: UI만 담당 (FileUpload)
+- **Container Components**: 상태 관리 및 비즈니스 로직 (page.tsx)
+- **UI Components**: 재사용 가능한 기본 컴포넌트 (Shadcn/ui)
+
+### 3. 상태 관리
+- React Hooks 기반 로컬 상태 관리
+- 상태 타입: `'upload' | 'processing' | 'completed' | 'error'`
+- `useCallback`, `useMemo`를 활용한 성능 최적화
+- 선택된 페이지 상태 관리 (`Set<number>`)
+- 진행률 상태 관리 (`{ current: number; total: number }`)
+- 복잡한 상태는 향후 Zustand 고려 가능
+
+### 4. 애니메이션
+- framer-motion을 활용한 화면 전환 애니메이션
+- AnimatePresence로 컴포넌트 등장/퇴장 애니메이션
+- 부드러운 사용자 경험 제공
+
+### 5. 에러 처리 아키텍처
+- **React Error Boundary**: 예상치 못한 에러 캐치 및 폴백 UI
+- **전역 에러 핸들러**: `window.onerror`, `unhandledrejection` 처리
+- **에러 타입 시스템**: 구조화된 에러 타입 및 메시지 관리
+- **사용자 친화적 메시지**: 에러별 해결 방법 제시
+
+### 6. 성능 최적화
+- **코드 스플리팅**: pdf-lib 동적 import로 초기 번들 크기 감소
+- **메모이제이션**: `useMemo`, `useCallback`으로 불필요한 리렌더링 방지
+- **메모리 관리**: Blob URL 즉시 정리, 메모리 사용량 모니터링
+- **진행률 표시**: 실시간 진행률 업데이트로 사용자 경험 개선
+
+### 7. 접근성 (A11y)
+- **ARIA 라벨**: 모든 인터랙티브 요소에 명확한 라벨
+- **키보드 네비게이션**: Tab, Enter, Space 키 지원
+- **포커스 관리**: 명확한 포커스 표시 및 키보드 접근성
+- **WCAG AA 준수**: 색상 대비 및 접근성 가이드라인 준수
+
+## 주요 컴포넌트 설명
+
+### app/layout.tsx
+**역할**: 루트 레이아웃 및 에러 처리 설정
+
+**기능**:
+- 메타데이터 정의 (title, description)
+- ErrorBoundary로 전체 앱 에러 캐치
+- ClientErrorHandler로 전역 에러 핸들러 설정
+- HTML lang 속성 설정 (한국어)
+
+### app/page.tsx
+**역할**: 메인 컨테이너 컴포넌트
+
+**상태 관리**:
+- `state`: 현재 애플리케이션 상태
+- `uploadedFile`: 업로드된 파일 정보
+- `splitPdfs`: 분할된 PDF 배열
+- `errorInfo`: 에러 정보 (ErrorInfo 타입)
+- `selectedPages`: 선택된 페이지 번호 Set
+- `isDownloading`: 다운로드 진행 중 상태
+- `processingProgress`: 처리 진행률 (실시간 업데이트)
+
+**성능 최적화**:
+- `useCallback`으로 함수 메모이제이션
+- `useMemo`로 선택된 PDF 배열 메모이제이션
+- 코드 스플리팅: pdf-lib 동적 import
+
+**주요 함수**:
+- `handleFileSelect`: 파일 선택 시 PDF 분할 처리 (진행률 콜백 포함)
+- `handleDownload`: 개별 PDF 다운로드 (Blob URL 정리 포함)
+- `handleDownloadAll`: 전체 페이지 ZIP 다운로드
+- `handleDownloadSelected`: 선택한 페이지 ZIP 다운로드
+- `handleSelectAll`: 전체 선택/해제
+- `handleTogglePage`: 개별 페이지 선택/해제
+- `handleReset`: 상태 초기화 및 새 파일 업로드
+- `handleRetry`: 에러 발생 시 재시도
+
+**화면 상태별 렌더링**:
+- `upload`: 파일 업로드 화면
+- `processing`: 로딩 화면 (진행률 표시)
+- `completed`: 다운로드 화면
+- `error`: 에러 화면
+
+**접근성**:
+- 모든 버튼에 ARIA 라벨 추가
+- 키보드 네비게이션 지원
+- 포커스 표시 명확화
+
+### components/FileUpload.tsx
+**역할**: 파일 업로드 UI 컴포넌트
+
+**기능**:
+- 드래그앤드롭 지원
+- 클릭으로 파일 선택
+- PDF 파일 형식 검증
+- 파일 크기 검증 (최대 100MB)
+- 에러 메시지 표시 (애니메이션 포함)
+- 드래그 상태 시각적 피드백
+- 키보드 접근성 지원 (ARIA 라벨)
+- 반응형 디자인 (모바일/태블릿/데스크톱)
+
+**Props**:
+- `onFileSelect: (file: File) => void`: 파일 선택 콜백
+- `disabled?: boolean`: 비활성화 상태
+
+### components/LoadingSpinner.tsx
+**역할**: 로딩 상태 표시 컴포넌트
+
+**기능**:
+- 무한 로딩 스피너 표시
+- 진행률 표시 (프로그레스 바)
+- 로딩 메시지 표시
+- 처리 중인 페이지 수 표시 (예: "3/10 페이지 처리 중")
+- 백분율 표시
+
+**Props**:
+- `message?: string`: 로딩 메시지
+- `progress?: { current: number; total: number }`: 진행률 정보
+
+**시각적 요소**:
+- 회전하는 스피너 애니메이션
+- 프로그레스 바 (부드러운 전환 애니메이션)
+- 현재/전체 페이지 수 및 백분율 표시
+
+### components/ErrorMessage.tsx
+**역할**: 에러 메시지 표시 컴포넌트
+
+**기능**:
+- 에러 타입별 메시지 표시
+- 해결 방법 제시
+- 재시도 버튼 제공
+- 새 파일 업로드 버튼 제공
+
+**Props**:
+- `error: ErrorInfo`: 에러 정보
+- `onRetry?: () => void`: 재시도 콜백
+- `onReset?: () => void`: 초기화 콜백
+
+### components/ErrorBoundary.tsx
+**역할**: React Error Boundary로 예상치 못한 에러 캐치
+
+**기능**:
+- `componentDidCatch`로 에러 캐치
+- 에러 발생 시 폴백 UI 표시
+- 개발 모드에서 상세 에러 정보 표시
+- 재시도 및 페이지 새로고침 옵션 제공
+
+**에러 처리**:
+- React 컴포넌트 렌더링 에러
+- 라이프사이클 메서드 에러
+- 하위 컴포넌트 트리의 에러
+
+### components/ClientErrorHandler.tsx
+**역할**: 클라이언트 사이드 전역 에러 핸들러 설정
+
+**기능**:
+- `useEffect`에서 전역 에러 핸들러 초기화
+- `setupGlobalErrorHandlers()` 호출
+- 앱 전체에 에러 핸들링 적용
+
+### lib/pdfSplitter.ts
+**역할**: PDF 분할 핵심 비즈니스 로직
+
+**함수**:
+- `splitPdfPages(file: File, onProgress?: ProgressCallback)`: PDF를 각 페이지로 분할
+
+**처리 과정**:
+1. 파일 크기 검증 (최대 100MB)
+2. 메모리 사용량 체크 (브라우저 지원 시)
+3. File → ArrayBuffer 변환
+4. PDFDocument.load()로 PDF 로드
+5. 각 페이지를 순회하며 독립 PDF 생성
+6. 각 페이지 처리 완료 시 진행률 콜백 호출
+7. Blob으로 변환하여 반환
+
+**진행률 콜백**:
+- 각 페이지 처리 완료 시 `onProgress(current, total)` 호출
+- 실시간 진행률 업데이트로 사용자 경험 개선
+
+**에러 처리**:
+- 파일 크기 초과 에러
+- 손상된 PDF 에러
+- 처리 중 에러
+- 메모리 부족 에러
+
+**반환 타입**:
+```typescript
+interface SplitPdfResult {
+  pageNumber: number;
+  blob: Blob;
+  fileName: string;
+}
+
+type ProgressCallback = (current: number, total: number) => void;
+```
+
+**메모리 관리**:
+- 대용량 파일 처리 시 메모리 사용량 모니터링
+- 파일 크기와 사용 가능한 메모리 비교
+- 경고 메시지 표시 (필요 시)
+
+### lib/zipDownloader.ts
+**역할**: ZIP 파일 생성 및 다운로드
+
+**함수**:
+- `downloadPdfsAsZip(pdfs: SplitPdfResult[], zipFileName?: string)`: 선택한 PDF들을 ZIP으로 다운로드
+
+**처리 과정**:
+1. JSZip 인스턴스 생성
+2. 각 PDF Blob을 ZIP에 추가
+3. ZIP 파일 생성 (Blob)
+4. Blob URL 생성 및 다운로드 트리거
+5. Blob URL 정리
+
+### lib/errorTypes.ts
+**역할**: 에러 타입 정의 및 메시지 관리
+
+**에러 타입**:
+- `INVALID_FILE_TYPE`: 잘못된 파일 형식
+- `FILE_TOO_LARGE`: 파일 크기 초과
+- `CORRUPTED_PDF`: 손상된 PDF
+- `PROCESSING_ERROR`: 처리 중 에러
+- `MEMORY_ERROR`: 메모리 부족
+- `UNKNOWN_ERROR`: 알 수 없는 에러
+
+**함수**:
+- `getErrorInfo(error: unknown)`: 에러에서 ErrorInfo 추출
+
+**에러 메시지 구조**:
+- 각 에러 타입별 사용자 친화적 메시지
+- 해결 방법 제시
+- 일관된 에러 처리 인터페이스
+
+### lib/errorHandler.ts
+**역할**: 전역 에러 핸들러 설정 및 관리
+
+**함수**:
+- `setupGlobalErrorHandlers()`: 전역 에러 핸들러 초기화
+
+**기능**:
+- `window.onerror`: 동기 에러 핸들링
+- `unhandledrejection`: Promise rejection 핸들링
+- 에러 리포트 로깅 (개발 모드)
+- 메모리 사용량 모니터링 (개발 모드)
+- 프로덕션 환경에서 에러 리포팅 서비스 연동 가능
+
+**메모리 모니터링**:
+- 5초마다 메모리 사용량 체크
+- 메모리 사용량이 80% 이상이면 경고
+- 개발 모드에서만 활성화
+
+## 데이터 흐름
+
+### 기본 플로우
+```
+사용자 액션 (파일 업로드)
+    ↓
+FileUpload 컴포넌트
+    ↓ (파일 검증: 형식, 크기)
+onFileSelect 콜백
+    ↓
+page.tsx의 handleFileSelect
+    ↓ (상태: processing)
+    ↓ (LoadingSpinner 표시)
+pdf-lib 동적 import (코드 스플리팅)
+    ↓
+splitPdfPages() 호출 (진행률 콜백 전달)
+    ↓
+pdf-lib로 PDF 분할 처리
+    ↓ (각 페이지 처리 시 진행률 콜백 호출)
+    ↓ (실시간 진행률 업데이트)
+SplitPdfResult[] 반환
+    ↓ (상태: completed)
+    ↓ (모든 페이지 자동 선택)
+다운로드 UI 표시 (애니메이션)
+    ↓
+사용자 선택:
+  - 개별 다운로드: handleDownload
+  - 전체 다운로드: handleDownloadAll
+  - 선택 다운로드: handleDownloadSelected
+    ↓
+Blob URL 생성 및 다운로드
+    ↓ (다운로드 완료 후 즉시 URL 정리)
+    ↓ (ZIP의 경우 zipDownloader.ts 사용)
+```
+
+### 에러 플로우
+```
+에러 발생
+    ↓
+에러 타입별 처리:
+  - React 컴포넌트 에러 → ErrorBoundary
+  - 전역 에러 → window.onerror
+  - Promise rejection → unhandledrejection
+    ↓
+getErrorInfo()로 에러 타입 추출
+    ↓ (상태: error)
+ErrorMessage 컴포넌트 표시
+    ↓
+사용자 선택:
+  - 재시도: handleRetry
+  - 새 파일 업로드: handleReset
+  - ErrorBoundary: 페이지 새로고침 또는 재시도
+```
+
+### 다운로드 플로우
+```
+개별 다운로드:
+  handleDownload(pdf)
+    → Blob URL 생성
+    → 다운로드 트리거
+    → URL 정리
+
+전체/선택 다운로드:
+  handleDownloadAll/Selected()
+    → downloadPdfsAsZip() 호출
+    → JSZip으로 ZIP 생성
+    → ZIP Blob 다운로드
+    → URL 정리
+```
+
+## 코딩 컨벤션
+
+### 파일 명명 규칙
+- **컴포넌트**: PascalCase** (예: `FileUpload.tsx`)
+- **유틸리티**: camelCase (예: `pdfSplitter.ts`)
+- **타입 정의**: 인터페이스는 컴포넌트 파일 또는 별도 타입 파일에 정의
+
+### 컴포넌트 작성 규칙
+- Client Component는 `'use client'` 디렉티브 필수
+- Props는 TypeScript 인터페이스로 타입 정의
+- 함수형 컴포넌트 사용
+- Hooks는 컴포넌트 상단에 선언
+
+### 스타일링 규칙
+- Tailwind CSS 유틸리티 클래스 사용
+- Shadcn/ui 컴포넌트 활용
+- 커스텀 스타일은 `globals.css`의 `@layer` 사용
+- 반응형: `sm:`, `md:`, `lg:` 브레이크포인트 활용
+
+### 에러 처리
+- **로컬 에러 처리**: try-catch로 비동기 작업 감싸기
+- **에러 타입 시스템**: `errorTypes.ts`의 에러 타입 활용
+- **에러 정보 추출**: `getErrorInfo()`로 에러 정보 추출
+- **사용자 친화적 메시지**: `ErrorMessage` 컴포넌트로 표시
+- **해결 방법 제시**: 에러 타입별 해결 방법 제공
+- **Error Boundary**: React 컴포넌트 에러 캐치
+- **전역 에러 핸들러**: `window.onerror`, `unhandledrejection` 처리
+- **에러 로깅**: 개발 모드에서 상세 로깅, 프로덕션에서 리포팅 가능
+
+### 메모리 관리
+- **Blob URL 관리**: 사용 후 즉시 `URL.revokeObjectURL()` 호출
+- **컴포넌트 언마운트**: `useEffect` cleanup 함수로 리소스 정리
+- **대용량 파일 처리**: 파일 크기 제한 (100MB), 메모리 사용량 모니터링
+- **ZIP 파일 생성**: 메모리 사용량 고려, 대용량 ZIP 처리
+- **메모리 모니터링**: 개발 모드에서 메모리 사용량 로깅
+- **메모리 누수 방지**: 모든 Blob URL 정리, 이벤트 리스너 제거
+
+## 개발 가이드라인
+
+### 새 컴포넌트 추가 시
+1. `components/` 디렉토리에 파일 생성
+2. TypeScript 인터페이스로 Props 타입 정의
+3. 필요한 경우 Shadcn/ui 컴포넌트 활용
+4. Tailwind CSS로 스타일링
+5. 접근성 고려: ARIA 라벨, 키보드 네비게이션
+6. 에러 처리 포함 (필요 시)
+7. 성능 최적화: `useMemo`, `useCallback` 활용
+
+### 새 유틸리티 함수 추가 시
+1. `lib/` 디렉토리에 파일 생성
+2. JSDoc 주석으로 함수 설명 추가
+3. TypeScript로 타입 정의
+4. 에러 처리 포함
+
+### PDF 처리 로직 수정 시
+1. `lib/pdfSplitter.ts` 파일 수정
+2. 에러 케이스 고려 및 `errorTypes.ts`에 타입 추가
+3. 메모리 사용량 주의 및 모니터링
+4. 진행률 콜백 지원 (필요 시)
+5. 다양한 PDF 파일로 테스트
+6. 대용량 파일 처리 테스트
+
+### ZIP 다운로드 기능 수정 시
+1. `lib/zipDownloader.ts` 파일 수정
+2. JSZip API 활용
+3. 대용량 ZIP 파일 처리 고려
+4. 다운로드 성능 최적화
+
+### 애니메이션 추가 시
+1. framer-motion의 `motion` 컴포넌트 활용
+2. `AnimatePresence`로 컴포넌트 전환 애니메이션
+3. 성능을 고려한 애니메이션 지속 시간 (0.3초 이내 권장)
+4. 불필요한 애니메이션은 제거하여 성능 최적화
+
+### 스타일 수정 시
+1. Tailwind CSS 유틸리티 클래스 우선 사용
+2. 전역 스타일은 `app/globals.css` 수정
+3. 테마 변수는 `globals.css`의 `:root`에서 관리
+4. 다크 모드 고려 (향후 구현)
+
+## 의존성 관리
+
+### 핵심 의존성
+- `next`: Next.js 프레임워크
+- `react`, `react-dom`: React 라이브러리
+- `pdf-lib`: PDF 처리
+- `tailwindcss`: 스타일링
+- `framer-motion`: 애니메이션 라이브러리
+- `jszip`: ZIP 파일 생성
+- `@radix-ui/*`: UI 컴포넌트 기반
+
+### Shadcn/ui 의존성
+- `@radix-ui/react-slot`: Button 컴포넌트
+- `@radix-ui/react-checkbox`: Checkbox 컴포넌트
+- `class-variance-authority`: 스타일 변형
+- `clsx`, `tailwind-merge`: 클래스 유틸리티
+- `lucide-react`: 아이콘
+
+### 개발 의존성
+- `typescript`: TypeScript 컴파일러
+- `@types/jszip`: JSZip 타입 정의
+- `@types/node`, `@types/react`, `@types/react-dom`: 타입 정의
+- `eslint`, `eslint-config-next`: 린팅
+
+## 주요 기능
+
+### 1. 파일 업로드
+- 드래그앤드롭 지원
+- 클릭으로 파일 선택
+- 파일 형식 및 크기 검증
+- 반응형 디자인
+
+### 2. PDF 분할
+- 각 페이지를 독립 PDF로 분할
+- 진행 상태 표시
+- 에러 처리 및 사용자 친화적 메시지
+
+### 3. 다운로드 옵션
+- **개별 다운로드**: 각 페이지를 개별 PDF로 다운로드
+- **전체 다운로드**: 모든 페이지를 하나의 ZIP 파일로 다운로드
+- **선택 다운로드**: 체크박스로 선택한 페이지만 ZIP으로 다운로드
+
+### 4. 사용자 경험
+- 부드러운 화면 전환 애니메이션
+- 로딩 상태 명확한 표시 (실시간 진행률)
+- 에러 발생 시 해결 방법 제시
+- 반응형 디자인 (모바일/태블릿/데스크톱)
+- 접근성 지원 (ARIA 라벨, 키보드 네비게이션, WCAG AA 준수)
+
+### 5. 성능 및 안정성
+- 코드 스플리팅으로 초기 로딩 시간 단축
+- 메모이제이션으로 불필요한 리렌더링 방지
+- 메모리 관리 및 모니터링
+- 전역 에러 핸들링으로 안정성 향상
+- Error Boundary로 예상치 못한 에러 처리
+
+## 주의사항
+
+1. **메모리 관리**: 
+   - 대용량 PDF 처리 시 메모리 사용량 모니터링 필요
+   - Blob URL 사용 후 즉시 정리
+   - 컴포넌트 언마운트 시 모든 리소스 정리
+2. **브라우저 호환성**: 
+   - File API, pdf-lib, JSZip 지원 브라우저만 지원
+   - 주요 브라우저 (Chrome, Firefox, Safari, Edge) 테스트 완료
+3. **에러 처리**: 
+   - 모든 비동기 작업에 에러 처리 필수
+   - Error Boundary와 전역 에러 핸들러 활용
+   - 사용자 친화적 에러 메시지 제공
+4. **타입 안정성**: 
+   - TypeScript 타입 정의를 명확히 유지
+   - 인터페이스와 타입을 적절히 활용
+5. **성능**: 
+   - 큰 PDF 파일 처리 시 사용자 경험 고려
+   - 코드 스플리팅 및 메모이제이션 활용
+   - 불필요한 리렌더링 방지
+6. **ZIP 파일 크기**: 
+   - 많은 페이지를 선택할 경우 ZIP 파일 크기가 커질 수 있음
+   - 메모리 사용량 모니터링 필요
+7. **접근성**: 
+   - ARIA 라벨 및 키보드 네비게이션 필수
+   - 색상 대비 WCAG AA 기준 준수
+   - 스크린 리더 호환성 고려
+
+## 참고 문서
+
+- [Next.js 공식 문서](https://nextjs.org/docs)
+- [Shadcn/ui 문서](https://ui.shadcn.com)
+- [pdf-lib 문서](https://pdf-lib.js.org)
+- [Tailwind CSS 문서](https://tailwindcss.com/docs)
+- [framer-motion 문서](https://www.framer.com/motion/)
+- [JSZip 문서](https://stuk.github.io/jszip/)
