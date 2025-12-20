@@ -17,7 +17,23 @@ interface ErrorReport {
  */
 function logError(report: ErrorReport) {
   if (process.env.NODE_ENV === 'development') {
-    console.error('Global Error Handler:', report);
+    // 구조화된 에러 정보 출력
+    console.group('🔴 Global Error Handler');
+    console.error('Message:', report.message);
+    if (report.source) {
+      console.error('Source:', report.source);
+    }
+    if (report.lineno !== undefined) {
+      console.error('Line:', report.lineno, 'Column:', report.colno);
+    }
+    if (report.error) {
+      console.error('Error:', report.error);
+      if (report.error.stack) {
+        console.error('Stack:', report.error.stack);
+      }
+    }
+    console.error('Timestamp:', new Date(report.timestamp).toISOString());
+    console.groupEnd();
   }
   
   // 프로덕션에서는 에러 리포팅 서비스로 전송할 수 있습니다
@@ -36,12 +52,29 @@ export function setupGlobalErrorHandlers() {
     colno?: number,
     error?: Error
   ) => {
+    // Event 객체인 경우 처리
+    let errorMessage: string;
+    if (typeof message === 'string') {
+      errorMessage = message;
+    } else if (message instanceof ErrorEvent) {
+      errorMessage = message.message || message.type || 'Unknown error';
+      // ErrorEvent에서 실제 Error 객체 추출
+      const actualError = error || message.error;
+      if (actualError && actualError instanceof Error) {
+        error = actualError;
+      }
+    } else if (message instanceof Event) {
+      errorMessage = `${message.type}: ${message.target ? String(message.target) : 'Unknown event'}`;
+    } else {
+      errorMessage = String(message);
+    }
+    
     const report: ErrorReport = {
-      message: typeof message === 'string' ? message : message.toString(),
-      source,
+      message: errorMessage,
+      source: source || (typeof window !== 'undefined' ? window.location.href : 'unknown'),
       lineno,
       colno,
-      error,
+      error: error || undefined,
       timestamp: Date.now(),
     };
     
@@ -53,9 +86,27 @@ export function setupGlobalErrorHandlers() {
 
   // 비동기 에러 핸들러 (Promise rejection)
   window.addEventListener('unhandledrejection', (event: PromiseRejectionEvent) => {
+    const reason = event.reason;
+    let errorMessage: string;
+    let error: Error | undefined;
+    
+    if (reason instanceof Error) {
+      error = reason;
+      errorMessage = `Unhandled Promise Rejection: ${reason.message}`;
+    } else if (typeof reason === 'string') {
+      errorMessage = `Unhandled Promise Rejection: ${reason}`;
+      error = new Error(reason);
+    } else if (reason && typeof reason === 'object') {
+      errorMessage = `Unhandled Promise Rejection: ${JSON.stringify(reason)}`;
+      error = new Error(errorMessage);
+    } else {
+      errorMessage = `Unhandled Promise Rejection: ${String(reason)}`;
+      error = new Error(errorMessage);
+    }
+    
     const report: ErrorReport = {
-      message: `Unhandled Promise Rejection: ${event.reason}`,
-      error: event.reason instanceof Error ? event.reason : new Error(String(event.reason)),
+      message: errorMessage,
+      error,
       timestamp: Date.now(),
     };
     

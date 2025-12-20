@@ -10,6 +10,7 @@ alwaysApply: true
 
 ### 주요 기능
 - **PDF 분할**: 각 페이지를 독립 PDF로 분할
+- **PDF 썸네일**: 각 페이지의 미리보기 이미지 생성
 - **다운로드 옵션**: 
   - 개별 페이지 다운로드
   - 전체 페이지 ZIP 다운로드
@@ -17,6 +18,7 @@ alwaysApply: true
 - **사용자 경험**: 
   - 부드러운 애니메이션
   - 반응형 디자인
+  - 다크 모드 지원
   - 명확한 에러 처리
   - 접근성 지원
 
@@ -27,8 +29,9 @@ alwaysApply: true
 - **Language**: TypeScript
 - **UI Library**: React 19
 - **UI Components**: Shadcn/ui (Radix UI 기반)
-- **Styling**: Tailwind CSS 3.4
+- **Styling**: Tailwind CSS 3.4 (다크 모드 지원)
 - **PDF 처리**: pdf-lib 1.17.1
+- **PDF 렌더링**: pdfjs-dist (썸네일 생성용)
 - **애니메이션**: framer-motion 12.23.26
 - **ZIP 생성**: jszip 3.10.1
 
@@ -57,7 +60,8 @@ PDF/
 │       └── checkbox.tsx
 ├── lib/                     # 유틸리티 및 비즈니스 로직
 │   ├── pdfSplitter.ts       # PDF 분할 핵심 로직 (진행률 콜백 지원)
-│   ├── zipDownloader.ts     # ZIP 파일 생성 및 다운로드
+│   ├── pdfThumbnail.ts      # PDF 썸네일 생성 (pdfjs-dist 사용)
+│   ├── zipDownloader.ts      # ZIP 파일 생성 및 다운로드
 │   ├── errorTypes.ts        # 에러 타입 정의 및 메시지
 │   ├── errorHandler.ts      # 전역 에러 핸들러 로직
 │   └── utils.ts             # 공통 유틸리티 함수 (cn 등)
@@ -121,6 +125,7 @@ PDF/
 - ErrorBoundary로 전체 앱 에러 캐치
 - ClientErrorHandler로 전역 에러 핸들러 설정
 - HTML lang 속성 설정 (한국어)
+- 다크 모드 활성화 (`className="dark"` 적용)
 
 ### app/page.tsx
 **역할**: 메인 컨테이너 컴포넌트
@@ -128,7 +133,7 @@ PDF/
 **상태 관리**:
 - `state`: 현재 애플리케이션 상태
 - `uploadedFile`: 업로드된 파일 정보
-- `splitPdfs`: 분할된 PDF 배열
+- `splitPdfs`: 분할된 PDF 배열 (썸네일 포함)
 - `errorInfo`: 에러 정보 (ErrorInfo 타입)
 - `selectedPages`: 선택된 페이지 번호 Set
 - `isDownloading`: 다운로드 진행 중 상태
@@ -140,13 +145,13 @@ PDF/
 - 코드 스플리팅: pdf-lib 동적 import
 
 **주요 함수**:
-- `handleFileSelect`: 파일 선택 시 PDF 분할 처리 (진행률 콜백 포함)
+- `handleFileSelect`: 파일 선택 시 PDF 분할 처리 (진행률 콜백 포함, 썸네일 생성)
 - `handleDownload`: 개별 PDF 다운로드 (Blob URL 정리 포함)
 - `handleDownloadAll`: 전체 페이지 ZIP 다운로드
 - `handleDownloadSelected`: 선택한 페이지 ZIP 다운로드
 - `handleSelectAll`: 전체 선택/해제
 - `handleTogglePage`: 개별 페이지 선택/해제
-- `handleReset`: 상태 초기화 및 새 파일 업로드
+- `handleReset`: 상태 초기화 및 새 파일 업로드 (썸네일 Blob URL 정리)
 - `handleRetry`: 에러 발생 시 재시도
 
 **화면 상태별 렌더링**:
@@ -273,6 +278,26 @@ type ProgressCallback = (current: number, total: number) => void;
 - 파일 크기와 사용 가능한 메모리 비교
 - 경고 메시지 표시 (필요 시)
 
+### lib/pdfThumbnail.ts
+**역할**: PDF 썸네일 이미지 생성
+
+**함수**:
+- `generateThumbnail(pdfBlob: Blob, maxWidth?: number)`: PDF Blob에서 첫 페이지 썸네일 생성
+
+**처리 과정**:
+1. pdfjs-dist 동적 import (클라이언트 사이드에서만)
+2. PDF Worker 설정 (로컬 파일 사용)
+3. Blob을 ArrayBuffer로 변환
+4. PDF 로드 및 첫 페이지 가져오기
+5. Canvas에 페이지 렌더링
+6. Data URL로 변환하여 반환
+
+**특징**:
+- 클라이언트 사이드에서만 실행
+- 비율 유지하며 썸네일 생성
+- 에러 발생 시 빈 문자열 반환
+- 메모리 효율적인 처리
+
 ### lib/zipDownloader.ts
 **역할**: ZIP 파일 생성 및 다운로드
 
@@ -344,9 +369,10 @@ pdf-lib로 PDF 분할 처리
     ↓ (각 페이지 처리 시 진행률 콜백 호출)
     ↓ (실시간 진행률 업데이트)
 SplitPdfResult[] 반환
+    ↓ (각 PDF에 썸네일 생성)
     ↓ (상태: completed)
     ↓ (모든 페이지 자동 선택)
-다운로드 UI 표시 (애니메이션)
+다운로드 UI 표시 (썸네일 포함, 애니메이션)
     ↓
 사용자 선택:
   - 개별 다운로드: handleDownload
@@ -455,6 +481,14 @@ ErrorMessage 컴포넌트 표시
 5. 다양한 PDF 파일로 테스트
 6. 대용량 파일 처리 테스트
 
+### PDF 썸네일 기능 수정 시
+1. `lib/pdfThumbnail.ts` 파일 수정
+2. pdfjs-dist API 활용
+3. Worker 설정 확인 (`/pdf.worker.min.mjs`)
+4. Canvas 렌더링 성능 고려
+5. 메모리 사용량 주의 (썸네일 Blob URL 정리)
+6. 다양한 PDF 형식 테스트
+
 ### ZIP 다운로드 기능 수정 시
 1. `lib/zipDownloader.ts` 파일 수정
 2. JSZip API 활용
@@ -470,8 +504,9 @@ ErrorMessage 컴포넌트 표시
 ### 스타일 수정 시
 1. Tailwind CSS 유틸리티 클래스 우선 사용
 2. 전역 스타일은 `app/globals.css` 수정
-3. 테마 변수는 `globals.css`의 `:root`에서 관리
-4. 다크 모드 고려 (향후 구현)
+3. 테마 변수는 `globals.css`의 `:root` 및 `.dark`에서 관리
+4. 다크 모드는 `layout.tsx`의 `<html>` 태그에 `className="dark"` 적용
+5. Shadcn/ui CSS 변수를 사용하여 자동으로 다크 모드 적용
 
 ## 의존성 관리
 
@@ -479,7 +514,8 @@ ErrorMessage 컴포넌트 표시
 - `next`: Next.js 프레임워크
 - `react`, `react-dom`: React 라이브러리
 - `pdf-lib`: PDF 처리
-- `tailwindcss`: 스타일링
+- `pdfjs-dist`: PDF 렌더링 및 썸네일 생성
+- `tailwindcss`: 스타일링 (다크 모드 지원)
 - `framer-motion`: 애니메이션 라이브러리
 - `jszip`: ZIP 파일 생성
 - `@radix-ui/*`: UI 컴포넌트 기반
@@ -518,6 +554,8 @@ ErrorMessage 컴포넌트 표시
 ### 4. 사용자 경험
 - 부드러운 화면 전환 애니메이션
 - 로딩 상태 명확한 표시 (실시간 진행률)
+- PDF 썸네일 미리보기 제공
+- 다크 모드 지원 (전체 서비스)
 - 에러 발생 시 해결 방법 제시
 - 반응형 디자인 (모바일/태블릿/데스크톱)
 - 접근성 지원 (ARIA 라벨, 키보드 네비게이션, WCAG AA 준수)
@@ -533,10 +571,12 @@ ErrorMessage 컴포넌트 표시
 
 1. **메모리 관리**: 
    - 대용량 PDF 처리 시 메모리 사용량 모니터링 필요
-   - Blob URL 사용 후 즉시 정리
+   - Blob URL 사용 후 즉시 정리 (PDF 및 썸네일 모두)
    - 컴포넌트 언마운트 시 모든 리소스 정리
+   - 썸네일 Blob URL도 정리 필요
 2. **브라우저 호환성**: 
-   - File API, pdf-lib, JSZip 지원 브라우저만 지원
+   - File API, pdf-lib, pdfjs-dist, JSZip 지원 브라우저만 지원
+   - Canvas API 지원 필요 (썸네일 생성용)
    - 주요 브라우저 (Chrome, Firefox, Safari, Edge) 테스트 완료
 3. **에러 처리**: 
    - 모든 비동기 작업에 에러 처리 필수
@@ -563,5 +603,7 @@ ErrorMessage 컴포넌트 표시
 - [Shadcn/ui 문서](https://ui.shadcn.com)
 - [pdf-lib 문서](https://pdf-lib.js.org)
 - [Tailwind CSS 문서](https://tailwindcss.com/docs)
+- [Tailwind CSS 다크 모드](https://tailwindcss.com/docs/dark-mode)
 - [framer-motion 문서](https://www.framer.com/motion/)
 - [JSZip 문서](https://stuk.github.io/jszip/)
+- [pdfjs-dist 문서](https://mozilla.github.io/pdf.js/)
