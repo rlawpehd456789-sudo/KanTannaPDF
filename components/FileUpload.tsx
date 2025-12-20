@@ -95,7 +95,8 @@ export function FileUpload({ onFileSelect, disabled = false }: FileUploadProps) 
       <Card
         className={`
           relative cursor-pointer transition-all duration-200
-          ${isDragging ? 'border-primary bg-primary/5 scale-[1.01]' : 'border-dashed'}
+          bg-background/95 backdrop-blur-sm
+          ${isDragging ? 'border-primary bg-primary/10 scale-[1.01]' : 'border-dashed'}
           ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:border-primary/50'}
         `}
         onDragOver={handleDragOver}
