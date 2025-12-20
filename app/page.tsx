@@ -21,7 +21,7 @@ export default function Home() {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [splitPdfs, setSplitPdfs] = useState<(SplitPdfResult & { thumbnail?: string })[]>([]);
   const [errorInfo, setErrorInfo] = useState<ErrorInfo | null>(null);
-  const [processingProgress, setProcessingProgress] = useState<{ current: number; total: number } | null>(null);
+  const [processingProgress, setProcessingProgress] = useState<{ current: number; total: number } | undefined>(undefined);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -79,7 +79,7 @@ export default function Home() {
     setUploadedFile(file);
     setState('processing');
     setErrorInfo(null);
-    setProcessingProgress(null);
+    setProcessingProgress(undefined);
 
     try {
       // pdf-lib를 동적으로 import
@@ -137,7 +137,7 @@ export default function Home() {
     setUploadedFile(null);
     setSplitPdfs([]);
     setErrorInfo(null);
-    setProcessingProgress(null);
+    setProcessingProgress(undefined);
   }, [splitPdfs]);
 
   const handleRetry = useCallback(() => {
@@ -224,9 +224,9 @@ export default function Home() {
           </div>
         )}
 
-        <div className="w-full h-full px-4 py-4 sm:py-6 md:py-8">
-          {/* 업로드 상태일 때만 타이틀 표시 */}
-          {state === 'upload' && (
+        <div className="w-full h-full px-4 py-4 sm:py-6 md:py-8 flex flex-col">
+          {/* 타이틀 - 업로드 및 처리 중 상태에서 표시 */}
+          {(state === 'upload' || state === 'processing') && (
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -236,9 +236,11 @@ export default function Home() {
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 text-white drop-shadow-lg">
                 PDF 페이지 분할 서비스
               </h1>
-              <p className="text-sm sm:text-base text-white/90 drop-shadow-md">
-                PDF 파일을 드래그하여 로봇 위에 놓거나 클릭하여 선택하세요
-              </p>
+              {state === 'upload' && (
+                <p className="text-sm sm:text-base text-white/90 drop-shadow-md">
+                  PDF 파일을 드래그하여 로봇 위에 놓거나 클릭하여 선택하세요
+                </p>
+              )}
             </motion.div>
           )}
 
@@ -257,14 +259,14 @@ export default function Home() {
             {state === 'processing' && (
               <motion.div
                 key="processing"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.3 }}
-                className="max-w-2xl mx-auto"
+                className="w-full max-w-3xl mx-auto mb-6"
               >
-                <Card className="bg-background/95 backdrop-blur-sm">
-                  <CardContent className="pt-6">
+                <Card className="bg-background/60 backdrop-blur-md border-border/50">
+                  <CardContent className="pt-4 pb-4 px-6">
                     <LoadingSpinner
                       message="PDF를 분할하는 중..."
                       progress={processingProgress}
@@ -300,6 +302,23 @@ export default function Home() {
                 transition={{ duration: 0.3 }}
                 className="space-y-6 bg-background/80 backdrop-blur-sm rounded-lg p-6"
               >
+              {/* 새 파일 업로드 버튼 - 상단으로 이동 */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.1 }}
+                className="flex justify-center"
+              >
+                <Button
+                  onClick={handleReset}
+                  variant="outline"
+                  size="lg"
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  새 파일 업로드
+                </Button>
+              </motion.div>
+
               {/* Grid 레이아웃으로 PDF 페이지 표시 */}
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                 <AnimatePresence>
@@ -349,23 +368,6 @@ export default function Home() {
                   ))}
                 </AnimatePresence>
               </div>
-
-              {/* 새 파일 업로드 버튼 */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3 }}
-                className="flex justify-center"
-              >
-                <Button
-                  onClick={handleReset}
-                  variant="outline"
-                  size="lg"
-                >
-                  <Upload className="h-4 w-4 mr-2" />
-                  새 파일 업로드
-                </Button>
-              </motion.div>
             </motion.div>
             )}
           </AnimatePresence>

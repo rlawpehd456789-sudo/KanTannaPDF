@@ -17,26 +17,28 @@ export function LoadingSpinner({
     : undefined;
 
   return (
-    <div className="flex flex-col items-center justify-center gap-4 py-12">
-      <div className="relative">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary/20 border-t-primary"></div>
+    <div className="flex flex-row items-center justify-center gap-6 py-4">
+      <div className="relative flex-shrink-0">
+        <div className="animate-spin rounded-full h-10 w-10 border-4 border-primary/20 border-t-primary"></div>
       </div>
-      <div className="text-center space-y-2">
-        <p className="text-lg font-medium">{message}</p>
+      <div className="flex-1 space-y-2">
+        <p className="text-base font-medium">{message}</p>
         {progress && (
           <div className="space-y-1">
-            <p className="text-sm text-muted-foreground">
-              {progress.current} / {progress.total} 페이지 처리 중
-            </p>
-            <div className="w-64 h-2 bg-secondary rounded-full overflow-hidden">
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                {progress.current} / {progress.total} 페이지 처리 중
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {progressPercentage}%
+              </p>
+            </div>
+            <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
               <div
                 className="h-full bg-primary transition-all duration-300 ease-out"
                 style={{ width: `${progressPercentage}%` }}
               />
             </div>
-            <p className="text-xs text-muted-foreground">
-              {progressPercentage}%
-            </p>
           </div>
         )}
         {!progress && (
