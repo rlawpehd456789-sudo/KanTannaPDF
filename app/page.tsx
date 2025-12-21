@@ -386,7 +386,7 @@ export default function Home() {
           </div>
         )}
 
-        <div className="w-full h-full px-4 py-4 sm:py-6 md:py-8 flex flex-col">
+        <div className="w-full h-full px-4 pt-2 sm:pt-3 md:pt-4 pb-4 sm:pb-6 md:pb-8 flex flex-col">
           {/* 로고 - 좌측 상단 (absolute positioning) */}
           <div className="absolute -top-4 left-4 sm:-top-3 sm:left-6 md:-top-2 md:left-8 z-30 pointer-events-none">
             <img 
@@ -397,7 +397,7 @@ export default function Home() {
           </div>
           
           {/* 언어 선택기 - 우측 상단 */}
-          <div className="flex justify-end mb-4 pointer-events-auto z-30 pr-8">
+          <div className="flex justify-end mb-2 pointer-events-auto z-30 pr-8">
             <LanguageSelector />
           </div>
 
@@ -407,11 +407,11 @@ export default function Home() {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className="text-center mb-6 md:mb-8"
+              className="text-center mb-4 md:mb-6"
             >
               {/* 모드 선택 버튼 */}
               {(state === 'upload' || state === 'file-selected') && (
-                <div className="flex gap-4 justify-center mb-6 pointer-events-auto">
+                <div className="flex gap-4 justify-center mb-4 pointer-events-auto">
                   <Button
                     onClick={(e) => {
                       e.stopPropagation();
