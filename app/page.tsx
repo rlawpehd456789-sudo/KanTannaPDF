@@ -386,7 +386,7 @@ export default function Home() {
           </div>
         )}
 
-        <div className="w-full h-full px-4 pt-0 pb-4 sm:pb-6 md:pb-8 flex flex-col">
+        <div className="w-full h-full px-4 pt-8 sm:pt-12 md:pt-16 pb-4 sm:pb-6 md:pb-8 flex flex-col justify-start">
           {/* 로고 - 좌측 상단 (absolute positioning) */}
           <div className="absolute -top-4 left-4 sm:-top-3 sm:left-6 md:-top-2 md:left-8 z-30 pointer-events-none">
             <img 
@@ -397,7 +397,7 @@ export default function Home() {
           </div>
           
           {/* 언어 선택기 - 우측 상단 */}
-          <div className="flex justify-end mt-20 mb-0 pointer-events-auto z-30 pr-8">
+          <div className="flex justify-end mb-0 pointer-events-auto z-30 pr-8">
             <LanguageSelector />
           </div>
 
@@ -407,11 +407,11 @@ export default function Home() {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className="text-center mb-0 md:mb-1"
+              className="text-center mb-2 md:mb-3"
             >
               {/* 모드 선택 버튼 */}
               {(state === 'upload' || state === 'file-selected') && (
-                <div className="flex gap-4 justify-center mb-1 pointer-events-auto">
+                <div className="flex gap-4 justify-center mb-2 pointer-events-auto">
                   <Button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -478,7 +478,7 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.3 }}
-                className="w-full max-w-3xl mx-auto mb-2"
+                className="w-full max-w-3xl mx-auto mb-6"
               >
                 <Card className="bg-background/60 backdrop-blur-md border-border/50">
                   <CardContent className="pt-4 pb-4 px-6">
@@ -700,7 +700,7 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
-                className="space-y-6 bg-background/80 backdrop-blur-sm rounded-lg p-6 max-w-2xl mx-auto -mt-8 md:-mt-12"
+                className="space-y-6 bg-background/80 backdrop-blur-sm rounded-lg p-6 max-w-2xl mx-auto -mt-40 sm:-mt-48 md:-mt-56 self-start"
               >
                 <div className="text-center">
                   <motion.h2
