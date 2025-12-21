@@ -91,8 +91,8 @@ export async function mergePdfFiles(
     // 병합된 PDF 바이트 생성
     const pdfBytes = await mergedPdf.save();
     
-    // Blob으로 변환
-    const blob = new Blob([pdfBytes as BlobPart], { type: 'application/pdf' });
+    // Blob으로 변환 (Uint8Array를 명시적으로 처리)
+    const blob = new Blob([new Uint8Array(pdfBytes)], { type: 'application/pdf' });
     
     // 파일명 생성 (첫 번째 파일명 기반)
     const firstFileName = files[0].name.replace(/\.pdf$/i, '');
