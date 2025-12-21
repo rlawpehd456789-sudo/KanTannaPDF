@@ -397,7 +397,7 @@ export default function Home() {
           </div>
           
           {/* 언어 선택기 - 우측 상단 */}
-          <div className="flex justify-end mb-0 pointer-events-auto z-30 pr-8">
+          <div className="flex justify-end mt-4 mb-0 pointer-events-auto z-30 pr-8">
             <LanguageSelector />
           </div>
 
