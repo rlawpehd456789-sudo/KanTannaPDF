@@ -12,6 +12,8 @@ import type { MergePdfResult } from '@/lib/pdfMerger';
 import { getErrorInfo, ErrorInfo, ErrorType } from '@/lib/errorTypes';
 import { generateThumbnail } from '@/lib/pdfThumbnail';
 import { InteractiveRobotSpline } from '@/components/ui/interactive-3d-robot';
+import { useI18n } from '@/lib/i18n/context';
+import { LanguageSelector } from '@/components/LanguageSelector';
 
 type AppMode = 'split' | 'merge';
 type AppState = 'upload' | 'file-selected' | 'processing' | 'completed' | 'error';
@@ -19,8 +21,16 @@ type AppState = 'upload' | 'file-selected' | 'processing' | 'completed' | 'error
 const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
 
 export default function Home() {
+  const { t, language } = useI18n();
   const [mode, setMode] = useState<AppMode>('split');
   const [state, setState] = useState<AppState>('upload');
+
+  // 페이지 제목 동적 업데이트
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.title = t('metadata.title');
+    }
+  }, [language, t]);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [splitPdfs, setSplitPdfs] = useState<(SplitPdfResult & { thumbnail?: string })[]>([]);
@@ -51,8 +61,8 @@ export default function Home() {
     if (!file.name.toLowerCase().endsWith('.pdf')) {
       setErrorInfo({
         type: ErrorType.INVALID_FILE_TYPE,
-        message: 'PDF 파일만 업로드할 수 있습니다.',
-        solution: 'PDF 파일만 업로드할 수 있습니다. 파일 형식을 확인해주세요.',
+        message: t('error.invalidFileType'),
+        solution: t('error.invalidFileTypeSolution'),
       });
       return false;
     }
@@ -61,8 +71,8 @@ export default function Home() {
     if (file.type && file.type !== 'application/pdf') {
       setErrorInfo({
         type: ErrorType.INVALID_FILE_TYPE,
-        message: 'PDF 파일만 업로드할 수 있습니다.',
-        solution: 'PDF 파일만 업로드할 수 있습니다. 파일 형식을 확인해주세요.',
+        message: t('error.invalidFileType'),
+        solution: t('error.invalidFileTypeSolution'),
       });
       return false;
     }
@@ -71,14 +81,14 @@ export default function Home() {
     if (file.size > MAX_FILE_SIZE) {
       setErrorInfo({
         type: ErrorType.FILE_TOO_LARGE,
-        message: '파일 크기는 100MB 이하여야 합니다.',
-        solution: '파일 크기는 100MB 이하여야 합니다. 더 작은 파일로 시도해주세요.',
+        message: t('error.fileTooLarge'),
+        solution: t('error.fileTooLargeSolution'),
       });
       return false;
     }
 
     return true;
-  }, []);
+  }, [t]);
 
   const handleFileSelect = useCallback(async (files: File[]) => {
     if (mode === 'split') {
@@ -124,8 +134,8 @@ export default function Home() {
       if (validFiles.length < 2) {
         setErrorInfo({
           type: ErrorType.INVALID_FILE_TYPE,
-          message: '병합하려면 최소 2개 이상의 PDF 파일이 필요합니다.',
-          solution: '2개 이상의 PDF 파일을 선택해주세요.',
+          message: t('error.minFilesRequired'),
+          solution: t('error.minFilesRequiredSolution'),
         });
         setState('error');
         return;
@@ -157,7 +167,7 @@ export default function Home() {
       const link = document.createElement('a');
       link.href = url;
       link.download = pdf.fileName;
-      link.setAttribute('aria-label', `페이지 ${pdf.pageNumber} 다운로드`);
+      link.setAttribute('aria-label', t('aria.downloadPage', { number: pdf.pageNumber }));
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -167,9 +177,9 @@ export default function Home() {
       }, 100);
     } catch (error) {
       console.error('다운로드 중 오류 발생:', error);
-      alert('다운로드 중 오류가 발생했습니다.');
+      alert(t('error.downloadError'));
     }
-  }, []);
+  }, [t]);
 
   const handleReset = useCallback(() => {
     // 모든 Blob URL 정리
@@ -196,15 +206,15 @@ export default function Home() {
     } else {
       handleReset();
     }
-  }, [mode, uploadedFile, uploadedFiles, handleFileSelect, handleReset]);
+  }, [mode, uploadedFile, uploadedFiles, handleFileSelect, handleReset, t]);
 
   // 병합 실행 함수
   const handleMerge = useCallback(async () => {
     if (uploadedFiles.length < 2) {
       setErrorInfo({
         type: ErrorType.INVALID_FILE_TYPE,
-        message: '병합하려면 최소 2개 이상의 PDF 파일이 필요합니다.',
-        solution: '2개 이상의 PDF 파일을 선택해주세요.',
+        message: t('error.minFilesRequired'),
+        solution: t('error.minFilesRequiredSolution'),
       });
       setState('error');
       return;
@@ -228,7 +238,7 @@ export default function Home() {
       setErrorInfo(error);
       setState('error');
     }
-  }, [uploadedFiles]);
+  }, [uploadedFiles, t]);
 
   // 파일 순서 변경 함수
   const moveFile = useCallback((fromIndex: number, toIndex: number) => {
@@ -366,10 +376,10 @@ export default function Home() {
             <div className="text-center">
               <p className="text-2xl font-bold text-primary drop-shadow-lg">
                 {mode === 'split' 
-                  ? 'PDF 파일을 여기에 놓으세요'
+                  ? t('dragDrop.split')
                   : state === 'file-selected'
-                  ? '추가 PDF 파일을 여기에 놓으세요'
-                  : 'PDF 파일들을 여기에 놓으세요 (최소 2개)'
+                  ? t('dragDrop.mergeAdd')
+                  : t('dragDrop.merge')
                 }
               </p>
             </div>
@@ -377,6 +387,20 @@ export default function Home() {
         )}
 
         <div className="w-full h-full px-4 py-4 sm:py-6 md:py-8 flex flex-col">
+          {/* 로고 - 좌측 상단 (absolute positioning) */}
+          <div className="absolute -top-4 left-4 sm:-top-3 sm:left-6 md:-top-2 md:left-8 z-30 pointer-events-none">
+            <img 
+              src="/Copilot_20251221_093546.png" 
+              alt="KanTanna PDF Logo" 
+              className="h-[150px] w-auto object-contain drop-shadow-lg"
+            />
+          </div>
+          
+          {/* 언어 선택기 - 우측 상단 */}
+          <div className="flex justify-end mb-4 pointer-events-auto z-30 pr-8">
+            <LanguageSelector />
+          </div>
+
           {/* 타이틀 - 업로드, 파일 선택, 처리 중 상태에서 표시 */}
           {(state === 'upload' || state === 'file-selected' || state === 'processing') && (
             <motion.div
@@ -398,7 +422,7 @@ export default function Home() {
                     size="lg"
                     className="pointer-events-auto"
                   >
-                    페이지 분할
+                    {t('mode.split')}
                   </Button>
                   <Button
                     onClick={(e) => {
@@ -410,25 +434,25 @@ export default function Home() {
                     size="lg"
                     className="pointer-events-auto"
                   >
-                    파일 병합
+                    {t('mode.merge')}
                   </Button>
                 </div>
               )}
               
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 text-white drop-shadow-lg pointer-events-none">
-                {mode === 'split' ? 'PDF 페이지 분할 서비스' : 'PDF 파일 병합 서비스'}
+                {mode === 'split' ? t('title.split') : t('title.merge')}
               </h1>
               {state === 'upload' && (
                 <p className="text-sm sm:text-base text-white/90 drop-shadow-md pointer-events-none">
                   {mode === 'split' 
-                    ? 'PDF 파일을 드래그하여 로봇 위에 놓거나 클릭하여 선택하세요'
-                    : '병합할 PDF 파일들을 드래그하여 로봇 위에 놓거나 클릭하여 선택하세요 (최소 2개)'
+                    ? t('description.split')
+                    : t('description.merge')
                   }
                 </p>
               )}
               {state === 'file-selected' && mode === 'merge' && (
                 <p className="text-sm sm:text-base text-white/90 drop-shadow-md pointer-events-none">
-                  파일 순서를 드래그하여 조정한 후 병합 버튼을 클릭하세요
+                  {t('description.mergeFileSelected')}
                 </p>
               )}
             </motion.div>
@@ -442,7 +466,7 @@ export default function Home() {
             multiple={mode === 'merge'}
             onChange={handleFileInputChange}
             className="hidden"
-            aria-label={mode === 'split' ? 'PDF 파일 선택' : 'PDF 파일들 선택'}
+            aria-label={mode === 'split' ? t('aria.selectFile') : t('aria.selectFiles')}
           />
 
           <AnimatePresence mode="wait">
@@ -459,7 +483,7 @@ export default function Home() {
                 <Card className="bg-background/60 backdrop-blur-md border-border/50">
                   <CardContent className="pt-4 pb-4 px-6">
                     <LoadingSpinner
-                      message={mode === 'split' ? 'PDF를 분할하는 중...' : 'PDF 파일들을 병합하는 중...'}
+                      message={mode === 'split' ? t('processing.splitting') : t('processing.merging')}
                       progress={processingProgress}
                     />
                   </CardContent>
@@ -478,10 +502,10 @@ export default function Home() {
               >
                 <div className="text-center mb-6">
                   <h2 className="text-xl sm:text-2xl font-bold mb-2">
-                    병합할 파일 목록
+                    {t('merge.fileList')}
                   </h2>
                   <p className="text-sm text-muted-foreground">
-                    드래그하여 순서를 변경하거나 파일을 추가/제거할 수 있습니다
+                    {t('merge.fileListDescription')}
                   </p>
                 </div>
 
@@ -533,7 +557,7 @@ export default function Home() {
                           removeFile(index);
                         }}
                         className="flex-shrink-0"
-                        aria-label={`${file.name} 제거`}
+                        aria-label={t('aria.removeFile', { fileName: file.name })}
                       >
                         <X className="h-4 w-4" />
                       </Button>
@@ -549,7 +573,7 @@ export default function Home() {
                     disabled={uploadedFiles.length < 2}
                     className="w-full sm:w-auto"
                   >
-                    병합하기 ({uploadedFiles.length}개 파일)
+                    {t('merge.mergeButton', { count: uploadedFiles.length })}
                   </Button>
                   <Button
                     onClick={() => {
@@ -560,7 +584,7 @@ export default function Home() {
                     className="w-full sm:w-auto"
                   >
                     <Upload className="h-4 w-4 mr-2" />
-                    파일 추가
+                    {t('common.addFile')}
                   </Button>
                   <Button
                     onClick={handleReset}
@@ -568,7 +592,7 @@ export default function Home() {
                     size="lg"
                     className="w-full sm:w-auto"
                   >
-                    초기화
+                    {t('common.reset')}
                   </Button>
                 </div>
               </motion.div>
@@ -613,7 +637,7 @@ export default function Home() {
                   size="lg"
                 >
                   <Upload className="h-4 w-4 mr-2" />
-                  새 파일 업로드
+                  {t('common.newFileUpload')}
                 </Button>
               </motion.div>
 
@@ -635,19 +659,19 @@ export default function Home() {
                             {pdf.thumbnail ? (
                               <img
                                 src={pdf.thumbnail}
-                                alt={`페이지 ${pdf.pageNumber} 미리보기`}
+                                alt={t('split.pageNumber', { number: pdf.pageNumber }) + ' ' + t('common.preview')}
                                 className="w-full h-full object-contain"
                               />
                             ) : (
                               <div className="text-muted-foreground text-xs">
-                                미리보기
+                                {t('common.preview')}
                               </div>
                             )}
                           </div>
                           
                           {/* 페이지 번호 */}
                           <p className="text-sm font-medium text-center mb-2">
-                            페이지 {pdf.pageNumber}
+                            {t('split.pageNumber', { number: pdf.pageNumber })}
                           </p>
                           
                           {/* 다운로드 버튼 */}
@@ -658,7 +682,7 @@ export default function Home() {
                             variant="default"
                           >
                             <Download className="h-4 w-4 mr-2" />
-                            다운로드
+                            {t('common.download')}
                           </Button>
                         </CardContent>
                       </Card>
@@ -676,7 +700,7 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
-                className="space-y-6 bg-background/80 backdrop-blur-sm rounded-lg p-6 max-w-2xl mx-auto"
+                className="space-y-6 bg-background/80 backdrop-blur-sm rounded-lg p-6 max-w-2xl mx-auto -mt-8 md:-mt-12"
               >
                 <div className="text-center">
                   <motion.h2
@@ -685,7 +709,7 @@ export default function Home() {
                     transition={{ delay: 0.1 }}
                     className="text-2xl sm:text-3xl font-bold mb-2"
                   >
-                    병합 완료!
+                    {t('merge.completed')}
                   </motion.h2>
                   <motion.p
                     initial={{ opacity: 0 }}
@@ -693,7 +717,7 @@ export default function Home() {
                     transition={{ delay: 0.2 }}
                     className="text-muted-foreground mb-6"
                   >
-                    총 <span className="font-semibold text-foreground">{mergedPdf.totalPages}</span>페이지가 병합되었습니다.
+                    {t('merge.totalPages', { total: mergedPdf.totalPages })}
                   </motion.p>
                   
                   <motion.div
@@ -709,21 +733,21 @@ export default function Home() {
                           const link = document.createElement('a');
                           link.href = url;
                           link.download = mergedPdf.fileName;
-                          link.setAttribute('aria-label', '병합된 PDF 다운로드');
+                          link.setAttribute('aria-label', t('aria.downloadMerged'));
                           document.body.appendChild(link);
                           link.click();
                           document.body.removeChild(link);
                           setTimeout(() => URL.revokeObjectURL(url), 100);
                         } catch (error) {
                           console.error('다운로드 중 오류 발생:', error);
-                          alert('다운로드 중 오류가 발생했습니다.');
+                          alert(t('error.downloadError'));
                         }
                       }}
                       size="lg"
                       className="w-full sm:w-auto"
                     >
                       <Download className="h-4 w-4 mr-2" />
-                      병합된 PDF 다운로드
+                      {t('merge.downloadMerged')}
                     </Button>
                     
                     <div>
@@ -734,7 +758,7 @@ export default function Home() {
                         className="w-full sm:w-auto"
                       >
                         <Upload className="h-4 w-4 mr-2" />
-                        새 파일 업로드
+                        {t('common.newFileUpload')}
                       </Button>
                     </div>
                   </motion.div>
