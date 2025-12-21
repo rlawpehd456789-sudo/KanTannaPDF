@@ -1,0 +1,81 @@
+{
+  "common": {
+    "download": "Download",
+    "upload": "Upload",
+    "reset": "Reset",
+    "retry": "Retry",
+    "newFileUpload": "Upload New File",
+    "addFile": "Add File",
+    "preview": "Preview",
+    "page": "Page",
+    "file": "File",
+    "files": "Files"
+  },
+  "mode": {
+    "split": "Split Pages",
+    "merge": "Merge Files"
+  },
+  "title": {
+    "split": "PDF Page Split",
+    "merge": "PDF File Merge"
+  },
+  "description": {
+    "split": "Drag and drop a PDF file onto the robot or click to select",
+    "merge": "Drag and drop PDF files onto the robot or click to select (minimum 2 files)",
+    "mergeFileSelected": "Drag to reorder files, then click the merge button"
+  },
+  "dragDrop": {
+    "split": "Drop PDF file here",
+    "merge": "Drop PDF files here (minimum 2)",
+    "mergeAdd": "Drop additional PDF files here"
+  },
+  "processing": {
+    "splitting": "Splitting PDF...",
+    "merging": "Merging PDF files...",
+    "processingPages": "Processing {current} / {total} pages",
+    "pleaseWait": "Please wait"
+  },
+  "merge": {
+    "fileList": "Files to Merge",
+    "fileListDescription": "Drag to reorder files or add/remove files",
+    "mergeButton": "Merge ({count} files)",
+    "completed": "Merge Complete!",
+    "totalPages": "Total {total} pages merged.",
+    "downloadMerged": "Download Merged PDF"
+  },
+  "split": {
+    "pageNumber": "Page {number}",
+    "downloadPage": "Download page {number}"
+  },
+  "error": {
+    "title": "Error Occurred",
+    "solution": "Solution:",
+    "invalidFileType": "Only PDF files can be uploaded.",
+    "invalidFileTypeSolution": "Only PDF files can be uploaded. Please check the file format.",
+    "fileTooLarge": "File size must be 100MB or less.",
+    "fileTooLargeSolution": "File size must be 100MB or less. Please try with a smaller file.",
+    "minFilesRequired": "At least 2 PDF files are required to merge.",
+    "minFilesRequiredSolution": "Please select at least 2 PDF files.",
+    "downloadError": "An error occurred while downloading.",
+    "corruptedPdf": "Corrupted PDF file.",
+    "corruptedPdfSolution": "The PDF file may be corrupted. Please try with another PDF file.",
+    "processingError": "An error occurred while processing the PDF.",
+    "processingErrorSolution": "Please upload the file again or try with another PDF file.",
+    "memoryError": "Cannot process due to insufficient memory.",
+    "memoryErrorSolution": "Please try with a smaller PDF file or restart your browser.",
+    "unknownError": "An unknown error occurred.",
+    "unknownErrorSolution": "Please refresh the page or try again later."
+  },
+  "aria": {
+    "selectFile": "Select PDF file",
+    "selectFiles": "Select PDF files",
+    "downloadPage": "Download page {number}",
+    "removeFile": "Remove {fileName}",
+    "downloadMerged": "Download merged PDF"
+  },
+  "metadata": {
+    "title": "PDF Page Split",
+    "description": "Split PDF files into individual pages and download them"
+  }
+}
+

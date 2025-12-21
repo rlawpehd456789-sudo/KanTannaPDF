@@ -1,0 +1,81 @@
+{
+  "common": {
+    "download": "ダウンロード",
+    "upload": "アップロード",
+    "reset": "リセット",
+    "retry": "再試行",
+    "newFileUpload": "新しいファイルをアップロード",
+    "addFile": "ファイルを追加",
+    "preview": "プレビュー",
+    "page": "ページ",
+    "file": "ファイル",
+    "files": "ファイル"
+  },
+  "mode": {
+    "split": "ページ分割",
+    "merge": "ファイル結合"
+  },
+  "title": {
+    "split": "PDFページ分割",
+    "merge": "PDFファイル結合"
+  },
+  "description": {
+    "split": "PDFファイルをロボットの上にドラッグするか、クリックして選択してください",
+    "merge": "結合するPDFファイルをロボットの上にドラッグするか、クリックして選択してください（最低2ファイル）",
+    "mergeFileSelected": "ファイルの順序をドラッグで調整してから、結合ボタンをクリックしてください"
+  },
+  "dragDrop": {
+    "split": "PDFファイルをここにドロップしてください",
+    "merge": "PDFファイルをここにドロップしてください（最低2ファイル）",
+    "mergeAdd": "追加のPDFファイルをここにドロップしてください"
+  },
+  "processing": {
+    "splitting": "PDFを分割中...",
+    "merging": "PDFファイルを結合中...",
+    "processingPages": "{current} / {total} ページ処理中",
+    "pleaseWait": "少々お待ちください"
+  },
+  "merge": {
+    "fileList": "結合するファイル一覧",
+    "fileListDescription": "ドラッグして順序を変更するか、ファイルを追加/削除できます",
+    "mergeButton": "結合する（{count}ファイル）",
+    "completed": "結合完了！",
+    "totalPages": "合計 {total} ページが結合されました。",
+    "downloadMerged": "結合されたPDFをダウンロード"
+  },
+  "split": {
+    "pageNumber": "ページ {number}",
+    "downloadPage": "ページ {number} をダウンロード"
+  },
+  "error": {
+    "title": "エラーが発生しました",
+    "solution": "解決方法：",
+    "invalidFileType": "PDFファイルのみアップロードできます。",
+    "invalidFileTypeSolution": "PDFファイルのみアップロードできます。ファイル形式を確認してください。",
+    "fileTooLarge": "ファイルサイズは100MB以下である必要があります。",
+    "fileTooLargeSolution": "ファイルサイズは100MB以下である必要があります。より小さいファイルで試してください。",
+    "minFilesRequired": "結合するには最低2つのPDFファイルが必要です。",
+    "minFilesRequiredSolution": "最低2つのPDFファイルを選択してください。",
+    "downloadError": "ダウンロード中にエラーが発生しました。",
+    "corruptedPdf": "破損したPDFファイルです。",
+    "corruptedPdfSolution": "PDFファイルが破損している可能性があります。別のPDFファイルで試してください。",
+    "processingError": "PDF処理中にエラーが発生しました。",
+    "processingErrorSolution": "ファイルを再度アップロードするか、別のPDFファイルで試してください。",
+    "memoryError": "メモリ不足のため処理できません。",
+    "memoryErrorSolution": "より小さいPDFファイルで試すか、ブラウザを再起動してください。",
+    "unknownError": "不明なエラーが発生しました。",
+    "unknownErrorSolution": "ページを更新するか、しばらくしてから再度お試しください。"
+  },
+  "aria": {
+    "selectFile": "PDFファイルを選択",
+    "selectFiles": "PDFファイルを選択",
+    "downloadPage": "ページ {number} をダウンロード",
+    "removeFile": "{fileName} を削除",
+    "downloadMerged": "結合されたPDFをダウンロード"
+  },
+  "metadata": {
+    "title": "PDFページ分割",
+    "description": "PDFファイルを各ページに分割してダウンロードできます"
+  }
+}
+

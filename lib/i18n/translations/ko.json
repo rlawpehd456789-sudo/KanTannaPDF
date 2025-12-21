@@ -1,0 +1,81 @@
+{
+  "common": {
+    "download": "다운로드",
+    "upload": "업로드",
+    "reset": "초기화",
+    "retry": "다시 시도",
+    "newFileUpload": "새 파일 업로드",
+    "addFile": "파일 추가",
+    "preview": "미리보기",
+    "page": "페이지",
+    "file": "파일",
+    "files": "파일들"
+  },
+  "mode": {
+    "split": "페이지 분할",
+    "merge": "파일 병합"
+  },
+  "title": {
+    "split": "PDF 페이지 분할",
+    "merge": "PDF 파일 병합"
+  },
+  "description": {
+    "split": "PDF 파일을 드래그하여 로봇 위에 놓거나 클릭하여 선택하세요",
+    "merge": "병합할 PDF 파일들을 드래그하여 로봇 위에 놓거나 클릭하여 선택하세요 (최소 2개)",
+    "mergeFileSelected": "파일 순서를 드래그하여 조정한 후 병합 버튼을 클릭하세요"
+  },
+  "dragDrop": {
+    "split": "PDF 파일을 여기에 놓으세요",
+    "merge": "PDF 파일들을 여기에 놓으세요 (최소 2개)",
+    "mergeAdd": "추가 PDF 파일을 여기에 놓으세요"
+  },
+  "processing": {
+    "splitting": "PDF를 분할하는 중...",
+    "merging": "PDF 파일들을 병합하는 중...",
+    "processingPages": "{current} / {total} 페이지 처리 중",
+    "pleaseWait": "잠시만 기다려주세요"
+  },
+  "merge": {
+    "fileList": "병합할 파일 목록",
+    "fileListDescription": "드래그하여 순서를 변경하거나 파일을 추가/제거할 수 있습니다",
+    "mergeButton": "병합하기 ({count}개 파일)",
+    "completed": "병합 완료!",
+    "totalPages": "총 {total}페이지가 병합되었습니다.",
+    "downloadMerged": "병합된 PDF 다운로드"
+  },
+  "split": {
+    "pageNumber": "페이지 {number}",
+    "downloadPage": "페이지 {number} 다운로드"
+  },
+  "error": {
+    "title": "오류 발생",
+    "solution": "해결 방법:",
+    "invalidFileType": "PDF 파일만 업로드할 수 있습니다.",
+    "invalidFileTypeSolution": "PDF 파일만 업로드할 수 있습니다. 파일 형식을 확인해주세요.",
+    "fileTooLarge": "파일 크기는 100MB 이하여야 합니다.",
+    "fileTooLargeSolution": "파일 크기는 100MB 이하여야 합니다. 더 작은 파일로 시도해주세요.",
+    "minFilesRequired": "병합하려면 최소 2개 이상의 PDF 파일이 필요합니다.",
+    "minFilesRequiredSolution": "2개 이상의 PDF 파일을 선택해주세요.",
+    "downloadError": "다운로드 중 오류가 발생했습니다.",
+    "corruptedPdf": "손상된 PDF 파일입니다.",
+    "corruptedPdfSolution": "PDF 파일이 손상되었을 수 있습니다. 다른 PDF 파일로 시도해주세요.",
+    "processingError": "PDF 처리 중 오류가 발생했습니다.",
+    "processingErrorSolution": "파일을 다시 업로드하거나 다른 PDF 파일로 시도해주세요.",
+    "memoryError": "메모리 부족으로 처리할 수 없습니다.",
+    "memoryErrorSolution": "더 작은 PDF 파일로 시도하거나 브라우저를 재시작해주세요.",
+    "unknownError": "알 수 없는 오류가 발생했습니다.",
+    "unknownErrorSolution": "페이지를 새로고침하거나 잠시 후 다시 시도해주세요."
+  },
+  "aria": {
+    "selectFile": "PDF 파일 선택",
+    "selectFiles": "PDF 파일들 선택",
+    "downloadPage": "페이지 {number} 다운로드",
+    "removeFile": "{fileName} 제거",
+    "downloadMerged": "병합된 PDF 다운로드"
+  },
+  "metadata": {
+    "title": "PDF 페이지 분할",
+    "description": "PDF 파일을 각 페이지로 분할하여 다운로드하세요"
+  }
+}
+
