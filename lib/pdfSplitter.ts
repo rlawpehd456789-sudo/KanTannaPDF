@@ -66,7 +66,7 @@ export async function splitPdfPages(
       const pdfBytes = await newPdf.save();
       
       // Blob으로 변환
-      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const blob = new Blob([pdfBytes] as BlobPart[], { type: 'application/pdf' });
       
       // 파일명 생성 (01, 02 형식으로 패딩)
       const pageNumber = i + 1;

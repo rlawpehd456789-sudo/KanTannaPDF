@@ -50,6 +50,7 @@ export async function generateThumbnail(
     await page.render({
       canvasContext: context,
       viewport: scaledViewport,
+      canvas: canvas,
     }).promise;
     
     // Canvas를 Data URL로 변환

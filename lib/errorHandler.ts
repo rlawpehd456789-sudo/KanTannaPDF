@@ -36,7 +36,7 @@ function logError(report: ErrorReport) {
     console.groupEnd();
   }
   
-  // 프로덕션에서는 에러 리포팅 서비스로 전송할 수 있습니다
+  // 프로덕션에서는 에러 리포팅으로 전송할 수 있습니다
   // 예: Sentry, LogRocket 등
 }
 
