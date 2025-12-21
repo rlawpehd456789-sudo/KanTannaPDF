@@ -407,11 +407,11 @@ export default function Home() {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className="text-center mb-2 md:mb-3"
+              className="text-center mb-0 md:mb-1"
             >
               {/* 모드 선택 버튼 */}
               {(state === 'upload' || state === 'file-selected') && (
-                <div className="flex gap-4 justify-center mb-2 pointer-events-auto">
+                <div className="flex gap-4 justify-center mb-1 pointer-events-auto">
                   <Button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -478,7 +478,7 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.3 }}
-                className="w-full max-w-3xl mx-auto mb-6"
+                className="w-full max-w-3xl mx-auto mb-2"
               >
                 <Card className="bg-background/60 backdrop-blur-md border-border/50">
                   <CardContent className="pt-4 pb-4 px-6">
