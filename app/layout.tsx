@@ -8,6 +8,14 @@ import Script from "next/script";
 export const metadata: Metadata = {
   title: "PDF 페이지 분할",
   description: "PDF 파일을 각 페이지로 분할하여 다운로드하세요",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
+  },
 };
 
 export default function RootLayout({
