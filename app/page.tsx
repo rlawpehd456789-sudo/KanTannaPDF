@@ -386,9 +386,9 @@ export default function Home() {
           </div>
         )}
 
-        <div className="w-full h-full px-4 pt-4 sm:pt-6 md:pt-8 pb-4 sm:pb-6 md:pb-8 flex flex-col justify-start">
+        <div className="w-full h-full px-4 pt-8 sm:pt-12 md:pt-16 pb-4 sm:pb-6 md:pb-8 flex flex-col justify-start">
           {/* 로고 - 좌측 상단 (absolute positioning) */}
-          <div className="absolute top-2 left-4 sm:top-3 sm:left-6 md:top-4 md:left-8 z-30 pointer-events-none">
+          <div className="absolute top-6 left-4 sm:top-8 sm:left-6 md:top-10 md:left-8 z-30 pointer-events-none">
             <img 
               src="/Copilot_20251221_093546.png" 
               alt="KanTanna PDF Logo" 
@@ -397,7 +397,7 @@ export default function Home() {
           </div>
           
           {/* 언어 선택기 - 우측 상단 */}
-          <div className="flex justify-end mb-2 pointer-events-auto z-30 pr-8">
+          <div className="flex justify-end mb-4 pointer-events-auto z-30 pr-8">
             <LanguageSelector />
           </div>
 
@@ -407,7 +407,7 @@ export default function Home() {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className="text-center mb-2 md:mb-3"
+              className="text-center mb-4 md:mb-6"
             >
               {/* 모드 선택 버튼 */}
               {(state === 'upload' || state === 'file-selected') && (
