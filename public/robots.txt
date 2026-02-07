@@ -1,6 +1,6 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://kantannapdf.tech/sitemap.xml
+Sitemap: https://kantannapdf.tech
 
 
