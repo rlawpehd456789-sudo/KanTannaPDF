@@ -622,7 +622,7 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
-                className="w-full max-w-6xl mx-auto mt-20 mb-8 space-y-6 bg-background/80 backdrop-blur-sm rounded-lg p-6"
+                className="w-full max-w-6xl mx-auto mt-40 sm:mt-48 md:mt-56 mb-8 space-y-6 bg-background/80 backdrop-blur-sm rounded-lg p-6"
               >
               {/* 새 파일 업로드 버튼 - 상단으로 이동 */}
               <motion.div
@@ -700,7 +700,7 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
-                className="w-full max-w-2xl mx-auto mt-20 mb-8 space-y-6 bg-background/80 backdrop-blur-sm rounded-lg p-6"
+                className="w-full max-w-2xl mx-auto mt-40 sm:mt-48 md:mt-56 mb-8 space-y-6 bg-background/80 backdrop-blur-sm rounded-lg p-6"
               >
                 <div className="text-center">
                   <motion.h2
